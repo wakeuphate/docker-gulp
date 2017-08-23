@@ -1,0 +1,49 @@
+#
+# Your mileage may vary. This is a basic setup for development based on a restricted environment I'd to work with one time
+# but you can see how my app,gulp and db work together.
+#
+
+version: '2'
+services:
+  db:
+    image: mysql:5.7
+    volumes:
+      - .docker/mysql/data:/var/lib/mysql
+      - .docker/mysql/seed:/docker-entrypoint-initdb.d
+    restart: always
+    ports:
+      - "3350:3306" # This is offset locally due to a local MySQL instance running.
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_DATABASE: DBNAME
+      MYSQL_USER: USERNAME
+      MYSQL_PASSWORD: PASSWORD
+
+  app:
+    depends_on:
+      - db
+    image: ruslangetmansky/docker-apache-php:5.6
+    volumes:
+      - .:/var/www/app/
+    ports:
+      - "80:80"
+    links:
+      - db
+    restart: always
+    environment:
+      APACHE_DOC_ROOT: /var/www/app
+
+  webpack:
+    build: docker-gulp
+    ports:
+      - "35729:35729"
+      - "8080:8080"
+    volumes_from:
+      - app:rw
+    environment:
+      THEME_NAME: WORDPRESS_THEME_FOLDER_NAME # Where your foundationpress root theme is.
+      APACHE_DOC_ROOT: /var/www/app
+
+volumes:
+  data:
+    driver: local
