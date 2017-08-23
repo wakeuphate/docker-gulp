@@ -36,8 +36,9 @@ services:
   webpack:
     build: docker-gulp
     ports:
-      - "35729:35729"
-      - "8080:8080"
+      - "3000:3000" # BrowserSync
+      - "3001:3001" # BrowserSync
+      - "8080:8080" # BrowserSync Management
     volumes_from:
       - app:rw
     environment:
